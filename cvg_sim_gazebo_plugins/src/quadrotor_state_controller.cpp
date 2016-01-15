@@ -64,7 +64,7 @@ void GazeboQuadrotorStateController::Load(physics::ModelPtr _model, sdf::Element
   else
     takeoff_topic_ = _sdf->GetElement("takeoffTopic")->Get<std::string>();
 
-  if (!_sdf->HasElement("/ardrone/land"))
+  if (!_sdf->HasElement("landTopic"))
     land_topic_ = "/ardrone/land";
   else
     land_topic_ = _sdf->GetElement("landTopic")->Get<std::string>();
@@ -311,7 +311,7 @@ void GazeboQuadrotorStateController::Update()
   common::Time sim_time = world->GetSimTime();
   double dt = (sim_time - last_time).Double();
   // Update rate is 200/per second
-  if (dt < 0.005) return;
+  if (dt < 0.05) return;
 
   // Get Pose/Orientation from Gazebo (if no state subscriber is active)
   if (imu_topic_.empty()) {
