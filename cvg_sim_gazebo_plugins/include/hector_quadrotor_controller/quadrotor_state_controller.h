@@ -30,10 +30,8 @@
 #include <ardrone_autonomy/CamSelect.h>
 #include <ardrone_autonomy/LedAnim.h>
 
-// for camera control
-#include <image_transport/image_transport.h>
-#include <image_transport/publisher_plugin.h>
-#include <sensor_msgs/CameraInfo.h>
+
+
 
 #define UNKNOWN_MODEL       0
 #define INITIALIZE_MODEL    1
@@ -84,14 +82,7 @@ private:
 
   // extra camera control command
   int                              m_selected_cam_num;
-  ros::ServiceServer               toggleCam_service;
-  ros::Subscriber                  camera_info_front_subscriber_;
-  ros::Subscriber                  camera_info_bottom_subscriber_;
-  ros::Publisher                   camera_info_publisher_;
-  image_transport::ImageTransport* camera_it_;
-  image_transport::Subscriber      camera_front_subscriber_;
-  image_transport::Subscriber      camera_bottom_subscriber_;
-  image_transport::Publisher       camera_publisher_;
+
 
   //***********************************
   
@@ -108,14 +99,9 @@ private:
   void ImuCallback(const sensor_msgs::ImuConstPtr&);
   void SonarCallback(const sensor_msgs::RangeConstPtr&);
   void StateCallback(const nav_msgs::OdometryConstPtr&);
-  void CameraFrontCallback(const sensor_msgs::ImageConstPtr&);
-  void CameraBottomCallback(const sensor_msgs::ImageConstPtr&);
-  void CameraInfoFrontCallback(const sensor_msgs::CameraInfoConstPtr&);
-  void CameraInfoBottomCallback(const sensor_msgs::CameraInfoConstPtr&);
 
   // service functions
-  bool setCamChannelCallback(ardrone_autonomy::CamSelect::Request& request, ardrone_autonomy::CamSelect::Response& response);
-  bool toggleCamCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
+
   bool toggleNavdataDemoCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response);
   bool setLedAnimationCallback(ardrone_autonomy::LedAnim::Request& request, ardrone_autonomy::LedAnim::Response& response);
 

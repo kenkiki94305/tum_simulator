@@ -192,56 +192,7 @@ void GazeboQuadrotorStateController::Load(physics::ModelPtr _model, sdf::Element
   }
 
 
-  // for camera control
-  // switch camera server
-  std::string toggleCam_topic  = "ardrone/togglecam";
-  ros::AdvertiseServiceOptions toggleCam_ops = ros::AdvertiseServiceOptions::create<std_srvs::Empty>(
-    toggleCam_topic,
-    boost::bind(&GazeboQuadrotorStateController::toggleCamCallback, this, _1,_2),
-    ros::VoidPtr(),
-    &callback_queue_);
 
-  toggleCam_service = node_handle_->advertiseService(toggleCam_ops);
-
-  // camera image data
-  std::string cam_out_topic  = "/ardrone/image_raw";
-  std::string cam_front_in_topic = "/ardrone/front/image_raw";
-  std::string cam_bottom_in_topic = "/ardrone/bottom/image_raw";
-  std::string in_transport = "raw";
-
-  camera_it_ = new image_transport::ImageTransport(*node_handle_);
-  camera_publisher_ = camera_it_->advertise(cam_out_topic, 1);
-
-  camera_front_subscriber_ = camera_it_->subscribe(
-    cam_front_in_topic, 1,
-    boost::bind(&GazeboQuadrotorStateController::CameraFrontCallback, this, _1),
-    ros::VoidPtr(), in_transport);
-
-  camera_bottom_subscriber_ = camera_it_->subscribe(
-    cam_bottom_in_topic, 1,
-    boost::bind(&GazeboQuadrotorStateController::CameraBottomCallback, this, _1),
-    ros::VoidPtr(), in_transport);
-
-  // camera image data
-  std::string cam_info_out_topic  = "/ardrone/camera_info";
-  std::string cam_info_front_in_topic = "/ardrone/front/camera_info";
-  std::string cam_info_bottom_in_topic = "/ardrone/bottom/camera_info";
-
-  camera_info_publisher_ = node_handle_->advertise<sensor_msgs::CameraInfo>(cam_info_out_topic,1);
-
-  ros::SubscribeOptions cam_info_front_ops = ros::SubscribeOptions::create<sensor_msgs::CameraInfo>(
-    cam_info_front_in_topic, 1,
-    boost::bind(&GazeboQuadrotorStateController::CameraInfoFrontCallback, this, _1),
-    ros::VoidPtr(), &callback_queue_);
-  camera_info_front_subscriber_ = node_handle_->subscribe(cam_info_front_ops);
-
-  ros::SubscribeOptions cam_info_bottom_ops = ros::SubscribeOptions::create<sensor_msgs::CameraInfo>(
-    cam_info_bottom_in_topic, 1,
-    boost::bind(&GazeboQuadrotorStateController::CameraInfoBottomCallback, this, _1),
-    ros::VoidPtr(), &callback_queue_);
-  camera_info_bottom_subscriber_ = node_handle_->subscribe(cam_info_bottom_ops);
-
-  // callback_queue_thread_ = boost::thread( boost::bind( &GazeboQuadrotorStateController::CallbackQueueThread,this ) );
 
 
   Reset();
@@ -419,7 +370,7 @@ void GazeboQuadrotorStateController::Update()
 
 
   navdata.header.stamp = ros::Time::now();
-  navdata.header.frame_id = "ardrone_base_link";
+  navdata.header.frame_id = "base_link";
   navdata.state = robot_current_state;
   navdata.magX = 0;
   navdata.magY = 0;
@@ -506,41 +457,7 @@ void GazeboQuadrotorStateController::ResetCallback(const std_msgs::EmptyConstPtr
   ROS_INFO("%s","\nReset quadrotor!!");
 }
 
-bool GazeboQuadrotorStateController::toggleCamCallback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
-{
-  if(m_selected_cam_num==0)
-    m_selected_cam_num = 1;
-  else if(m_selected_cam_num==1)
-    m_selected_cam_num = 0;
 
-  ROS_INFO("\nSetting camera channel to : %d.\n", m_selected_cam_num);
-  return true;
-}
-
-void GazeboQuadrotorStateController::CameraFrontCallback(const sensor_msgs::ImageConstPtr& image)
-{
-  if(m_selected_cam_num==0)
-    camera_publisher_.publish(image);
-}
-
-void GazeboQuadrotorStateController::CameraBottomCallback(const sensor_msgs::ImageConstPtr& image)
-{
-  if(m_selected_cam_num==1)
-    camera_publisher_.publish(image);
-}
-
-void GazeboQuadrotorStateController::CameraInfoFrontCallback(const sensor_msgs::CameraInfoConstPtr&  image_info)
-{
-  if(m_selected_cam_num==0)
-    camera_info_publisher_.publish(image_info);
-}
-
-void GazeboQuadrotorStateController::CameraInfoBottomCallback(const sensor_msgs::CameraInfoConstPtr&  image_info)
-{
-  if(m_selected_cam_num==1)
-    camera_info_publisher_.publish(image_info);
-
-}
 
 // Register this plugin with the simulator
 GZ_REGISTER_MODEL_PLUGIN(GazeboQuadrotorStateController)
